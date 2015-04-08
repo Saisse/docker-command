@@ -13,9 +13,20 @@ case class Docker(name: String, tag: String, directory: File) {
     exec(s"bash build.sh $tag", Some(directory))
   }
 
+  def build(contents: Seq[File]): Unit = {
+    setupDockerContent(contents)
+    exec(s"bash build.sh $tag", Some(directory))
+  }
+
   def rebuild(envDir: File, files: Seq[File] = Seq()): Unit = {
     val id = listContainerId(tag)
     build(envDir, files)
+    reloadContainer(id)
+  }
+
+  def rebuild(contents: Seq[File]): Unit = {
+    val id = listContainerId(tag)
+    build(contents)
     reloadContainer(id)
   }
 
@@ -42,11 +53,15 @@ case class Docker(name: String, tag: String, directory: File) {
   }
 
   private def setupDockerContent(envDir: File, files: Seq[File] = Seq()): Unit = {
+    val contents = (new File(envDir, "docker")).listFiles ++ files
+    setupDockerContent(contents)
+  }
+
+  private def setupDockerContent(contents: Seq[File]): Unit = {
     val contentDir = new File(directory, "content")
     if(!contentDir.exists) {
       Files.createDirectory(contentDir.toPath)
     }
-    val contents = (new File(envDir, "docker")).listFiles ++ files
     contents.foreach(f => {
       println(s"copy ${f.getAbsolutePath} to ${contentDir.getAbsolutePath}")
       Files.copy(f.toPath, new File(contentDir, f.getName()).toPath, copyOption)
