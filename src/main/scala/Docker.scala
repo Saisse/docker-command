@@ -3,8 +3,10 @@ package jp.saisse.docker.command
 import java.io.File
 import scala.sys.process.Process
 import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 
 case class Docker(name: String, tag: String, directory: File) {
+  val copyOption = StandardCopyOption.REPLACE_EXISTING
 
   def build(envDir: File, files: Seq[File] = Seq()): Unit = {
     setupDockerContent(envDir, files)
@@ -45,7 +47,7 @@ case class Docker(name: String, tag: String, directory: File) {
     val contents = (new File(envDir, "docker")).listFiles ++ files
     contents.foreach(f => {
       println(s"copy ${f.getAbsolutePath} to ${contentDir.getAbsolutePath}")
-      Files.copy(f.toPath, new File(contentDir, f.getName()).toPath)
+      Files.copy(f.toPath, new File(contentDir, f.getName()).toPath, copyOption)
     })
   }
 
