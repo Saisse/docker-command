@@ -43,7 +43,9 @@ case class Docker(name: String, tag: String, directory: File) {
 
   private def setupDockerContent(envDir: File, files: Seq[File] = Seq()): Unit = {
     val contentDir = new File(directory, "content")
-    Files.createDirectory(contentDir.toPath)
+    if(!contentDir.exists) {
+      Files.createDirectory(contentDir.toPath)
+    }
     val contents = (new File(envDir, "docker")).listFiles ++ files
     contents.foreach(f => {
       println(s"copy ${f.getAbsolutePath} to ${contentDir.getAbsolutePath}")
