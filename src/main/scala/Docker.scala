@@ -32,14 +32,6 @@ case class Docker(name: String, tag: String, directory: File) {
 
   private def reloadContainer(id: Option[String]): Unit = {
     println(s"reload $tag container at ${directory.getAbsolutePath}")
-    if(isMac()) {
-      val x = (Process("boot2docker status") !!) match {
-        case "running\n" =>
-        case _ => {
-          exec("boot2docker up")
-        }
-      }
-    }
     stop(id)
     exec(s"bash daemon.sh $tag", Some(directory))
   }
