@@ -32,11 +32,16 @@ case class Docker(name: String, tag: String, directory: File) {
 
   private def reloadContainer(id: Option[String]): Unit = {
     println(s"reload $tag container at ${directory.getAbsolutePath}")
-    stop(id)
+    stopContainer(id)
     exec(s"bash daemon.sh $tag", Some(directory))
   }
 
-  def stop(id: Option[String]): Unit = {
+  def stop(): Unit = {
+    println(s"stop $tag container.")
+    stopContainer(listContainerId(tag))
+  }
+
+  def stopContainer(id: Option[String]): Unit = {
     println(s"stop $tag container at ${directory.getAbsolutePath}")
     id.foreach(id => {
       exec(s"docker stop $id")
@@ -82,14 +87,5 @@ case class Docker(name: String, tag: String, directory: File) {
   private def listContainerId(tag: String): Option[String] = {
     val line = (Process("docker ps") !!).split("\n").find(l => l.contains(tag))
     line.map(l => l.split("[ ]")(0))
-  }
-
-  private def isMac(): Boolean = {
-    try {
-      val p =(Process("boot2docker version") !!)
-      true
-    } catch {
-      case _: Throwable => false
-    }
   }
 }
