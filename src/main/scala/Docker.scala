@@ -24,6 +24,8 @@ case class Docker(name: String, tag: String, directory: File) {
     reloadContainer(id)
   }
 
+  def setupContent(envDir: File, files: Seq[File] = Seq()): Unit = setupDockerContent(envDir, files)
+
   def rebuild(contents: Seq[File]): Unit = {
     val id = listContainerId(tag)
     build(contents)
